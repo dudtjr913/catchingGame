@@ -14,24 +14,36 @@ const playBtn = document.querySelector(".jsBtn");
 const replayWrapper = document.querySelector(".jsReplayWrapper");
 const replay = document.querySelector(".jsReplay");
 const replayBtn = document.querySelector(".jsReplayBtn");
-const carrots = document.querySelector(".carrotImg");
-const btnClass = playBtn.classList;
+const catching = document.querySelector(".jsCatch");
+const replayText = document.querySelector(".jsReplayText");
 
+const btnClass = playBtn.classList;
+let catchingCarrot = 0;
 let minusTime = 10;
 
 const handleStatus = function () {
   minusTime = 10;
+  catching.innerText = 0;
+  replayText.innerText = "YOU LOST😢";
   removeGame();
   generateGame();
+  delBugs();
   replayWrapper.classList.add("hidden");
   btnClass.remove("hidden");
   time.innerText = `00:${minusTime}`;
   const decreseTime = setInterval(() => {
+    if (catching.innerText === "7") {
+      clearInterval(decreseTime);
+      replayText.innerText = "YOU WIN!!";
+      replayWrapper.classList.remove("hidden");
+    }
+
     if (minusTime > 0) {
       minusTime = minusTime - 1;
       time.innerText = `00:0${minusTime}`;
     } else if (minusTime === 0) {
       playBtn.classList.add("btn_hidden");
+      replayWrapper.classList.remove("hidden");
       clearInterval(decreseTime);
     }
     if (btnClass[2] === "fa-stop") {
@@ -61,11 +73,11 @@ if (replayBtn) {
 }
 
 const generateGame = function () {
-  for (let i = 1; i <= 7; i++) {
-    generateBugs();
+  for (let i = 8; i <= 17; i++) {
+    generateCarrot(i);
   }
-  for (let i = 1; i <= 10; i++) {
-    generateCarrot();
+  for (let i = 1; i <= 7; i++) {
+    generateBugs(i);
   }
 };
 
@@ -75,30 +87,54 @@ const removeGame = function () {
   }
 };
 
-const generateBugs = function () {
+const generateBugs = function (id) {
   const jsLeft = Math.floor(Math.random() * 950);
   const jsTop = Math.floor(Math.random() * 330);
   const bugImg = document.createElement("img");
   bugImg.classList.add("bugImg");
   bugImg.src = "img/bug.png";
   bugImg.alt = "bug";
+  bugImg.id = id;
   bugImg.style.left = `${jsLeft}px`;
   bugImg.style.top = `${jsTop}px`;
   main.appendChild(bugImg);
 };
 
-const generateCarrot = function () {
+const generateCarrot = function (id) {
   const jsLeft = Math.floor(Math.random() * 950);
   const jsTop = Math.floor(Math.random() * 330);
   const carrotImg = document.createElement("img");
   carrotImg.classList.add("carrotImg");
   carrotImg.src = "img/carrot.png";
   carrotImg.alt = "carrpt";
+  carrotImg.id = id;
   carrotImg.style.left = `${jsLeft}px`;
   carrotImg.style.top = `${jsTop}px`;
   main.appendChild(carrotImg);
 };
 
+const delBugs = function () {
+  const bugs = document.querySelectorAll(".bugImg");
+  const carrots = document.querySelectorAll(".carrotImg");
+  bugs.forEach(function (ele) {
+    ele.addEventListener("click", (a) => {
+      a.target.remove();
+      catching.innerText++;
+    });
+  });
+  carrots.forEach(function (ele) {
+    ele.addEventListener("click", (a) => {
+      a.target.remove();
+      catchingCarrot++;
+      return handleStatus();
+    });
+  });
+};
+
 const delCarrot = function (event) {
   console.log(event);
+};
+
+const youWin = function () {
+  console.log("win");
 };
