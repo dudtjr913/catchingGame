@@ -16,26 +16,38 @@ const replay = document.querySelector(".jsReplay");
 const replayBtn = document.querySelector(".jsReplayBtn");
 const catching = document.querySelector(".jsCatch");
 const replayText = document.querySelector(".jsReplayText");
+const bugDiv = main.querySelector(".bugDiv");
+const carrotDiv = main.querySelector(".carrotDiv");
 
 const btnClass = playBtn.classList;
 let catchingCarrot = 0;
 let minusTime = 10;
 
+console.dir(main);
+
 const handleStatus = function () {
-  minusTime = 10;
-  catching.innerText = 0;
-  replayText.innerText = "YOU LOST😢";
-  removeGame();
-  generateGame();
-  delBugs();
-  replayWrapper.classList.add("hidden");
-  btnClass.remove("hidden");
-  time.innerText = `00:${minusTime}`;
+  if (catchingCarrot === 0) {
+    minusTime = 10;
+    catching.innerText = 0;
+    replayText.innerText = "YOU LOST😢";
+    removeGame();
+    generateGame();
+    delBugs();
+    delCarrot();
+    replayWrapper.classList.add("hidden");
+    btnClass.remove("hidden");
+    time.innerText = `00:${minusTime}`;
+  }
   const decreseTime = setInterval(() => {
     if (catching.innerText === "7") {
       clearInterval(decreseTime);
       replayText.innerText = "YOU WIN!!";
       replayWrapper.classList.remove("hidden");
+    }
+    if (catchingCarrot === 1) {
+      clearInterval(decreseTime);
+      replayWrapper.classList.remove("hidden");
+      catchingCarrot = 0;
     }
 
     if (minusTime > 0) {
@@ -82,14 +94,17 @@ const generateGame = function () {
 };
 
 const removeGame = function () {
-  while (main.hasChildNodes()) {
-    main.removeChild(main.firstChild);
+  while (bugDiv.hasChildNodes()) {
+    bugDiv.removeChild(bugDiv.firstChild);
+  }
+  while (carrotDiv.hasChildNodes()) {
+    carrotDiv.removeChild(carrotDiv.firstChild);
   }
 };
 
 const generateBugs = function (id) {
-  const jsLeft = Math.floor(Math.random() * 950);
-  const jsTop = Math.floor(Math.random() * 330);
+  const jsLeft = Math.floor(Math.random() * (main.clientWidth - 70));
+  const jsTop = Math.floor(Math.random() * (main.clientHeight - 80));
   const bugImg = document.createElement("img");
   bugImg.classList.add("bugImg");
   bugImg.src = "img/bug.png";
@@ -97,12 +112,12 @@ const generateBugs = function (id) {
   bugImg.id = id;
   bugImg.style.left = `${jsLeft}px`;
   bugImg.style.top = `${jsTop}px`;
-  main.appendChild(bugImg);
+  bugDiv.appendChild(bugImg);
 };
 
 const generateCarrot = function (id) {
-  const jsLeft = Math.floor(Math.random() * 950);
-  const jsTop = Math.floor(Math.random() * 330);
+  const jsLeft = Math.floor(Math.random() * (main.clientWidth - 70));
+  const jsTop = Math.floor(Math.random() * (main.clientHeight - 80));
   const carrotImg = document.createElement("img");
   carrotImg.classList.add("carrotImg");
   carrotImg.src = "img/carrot.png";
@@ -110,31 +125,25 @@ const generateCarrot = function (id) {
   carrotImg.id = id;
   carrotImg.style.left = `${jsLeft}px`;
   carrotImg.style.top = `${jsTop}px`;
-  main.appendChild(carrotImg);
+  carrotDiv.appendChild(carrotImg);
 };
 
 const delBugs = function () {
   const bugs = document.querySelectorAll(".bugImg");
-  const carrots = document.querySelectorAll(".carrotImg");
   bugs.forEach(function (ele) {
     ele.addEventListener("click", (a) => {
       a.target.remove();
       catching.innerText++;
     });
   });
+};
+
+const delCarrot = function () {
+  const carrots = document.querySelectorAll(".carrotImg");
   carrots.forEach(function (ele) {
     ele.addEventListener("click", (a) => {
       a.target.remove();
       catchingCarrot++;
-      return handleStatus();
     });
   });
-};
-
-const delCarrot = function (event) {
-  console.log(event);
-};
-
-const youWin = function () {
-  console.log("win");
 };
