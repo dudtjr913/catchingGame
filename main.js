@@ -18,18 +18,30 @@ const catching = document.querySelector(".jsCatch");
 const replayText = document.querySelector(".jsReplayText");
 const bugDiv = main.querySelector(".bugDiv");
 const carrotDiv = main.querySelector(".carrotDiv");
+const bgMusic = document.createElement("audio");
 
 const btnClass = playBtn.classList;
 let catchingCarrot = 0;
 let minusTime = 10;
 
-console.dir(main);
+const playMusic = function () {
+  bgMusic.src = "sound/bg.mp3";
+  body.appendChild(bgMusic);
+  bgMusic.play();
+};
+
+const pauseMusic = function () {
+  bgMusic.src = "sound/bg.mp3";
+  body.appendChild(bgMusic);
+  bgMusic.pause();
+};
 
 const handleStatus = function () {
   if (catchingCarrot === 0) {
     minusTime = 10;
     catching.innerText = 0;
     replayText.innerText = "YOU LOST😢";
+    playMusic();
     removeGame();
     generateGame();
     delBugs();
@@ -41,11 +53,13 @@ const handleStatus = function () {
   const decreseTime = setInterval(() => {
     if (catching.innerText === "7") {
       clearInterval(decreseTime);
+      pauseMusic();
       replayText.innerText = "YOU WIN!!";
       replayWrapper.classList.remove("hidden");
     }
     if (catchingCarrot === 1) {
       clearInterval(decreseTime);
+      pauseMusic();
       replayWrapper.classList.remove("hidden");
       catchingCarrot = 0;
     }
@@ -57,9 +71,11 @@ const handleStatus = function () {
       playBtn.classList.add("btn_hidden");
       replayWrapper.classList.remove("hidden");
       clearInterval(decreseTime);
+      pauseMusic();
     }
     if (btnClass[2] === "fa-stop") {
       playBtn.addEventListener("click", function () {
+        pauseMusic();
         btnClass.add("hidden");
         replayWrapper.classList.remove("hidden");
         clearInterval(decreseTime);
@@ -130,10 +146,14 @@ const generateCarrot = function (id) {
 
 const delBugs = function () {
   const bugs = document.querySelectorAll(".bugImg");
+  const bugsAudio = document.createElement("audio");
+  bugsAudio.src = "sound/bug_pull.mp3";
+  bugDiv.appendChild(bugsAudio);
   bugs.forEach(function (ele) {
     ele.addEventListener("click", (a) => {
       a.target.remove();
       catching.innerText++;
+      bugsAudio.play();
     });
   });
 };
