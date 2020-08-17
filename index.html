@@ -1,5 +1,5 @@
-<!DOCTYPE html>
 <html lang="en">
+  <!DOCTYPE html>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,36 +8,26 @@
       src="https://kit.fontawesome.com/562186f43c.js"
       crossorigin="anonymous"
     ></script>
-    <script src="main.js" defer></script>
     <link rel="stylesheet" href="style.css" />
-
-    <title>catchingGame</title>
+    <script src="main.js" defer></script>
+    <title>Fun Game</title>
   </head>
   <body>
-    <section>
-      <header class="status">
-        <i class="fas fa-play jsBtn"></i>
-        <span class="jsTime time">00:00</span>
-        <span class="jsCatch catch">0</span>
+    <section class="game_img">
+      <header class="game_status">
+        <button class="play_btn">
+          <i class="fas fa-play"></i>
+        </button>
+        <div class="play_time">0:0</div>
+        <div class="play_catching">0</div>
       </header>
-      <img
-        class="jsImg game_image"
-        src="img/background.png"
-        alt="gameImg"
-        title="gameImg"
-      />
-      <main class="jsBugs bugs">
-        <div class="bugDiv"></div>
-        <div class="carrotDiv"></div>
-      </main>
-      <nav class="nav_container jsReplayWrapper hidden">
-        <div class="replay jsReplay">
-          <button class="replay_btn jsReplayBtn">
-            <i class="fas fa-reply"></i>
-          </button>
-          <span class="replay_text jsReplayText">YOU LOST😢</span>
-        </div>
-      </nav>
+      <section class="replay_container hide">
+        <button class="replay_btn">
+          <i class="fas fa-redo"></i>
+        </button>
+        <span class="user_text">YOU WON!!</span>
+      </section>
+      <div class="game_frame"></div>
     </section>
   </body>
 </html>

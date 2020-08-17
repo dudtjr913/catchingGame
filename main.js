@@ -1,169 +1,134 @@
-// 1. 시간 흘러가게 하기
-// 2. 플레이버튼 활성화
-// 3. 정지버튼 활성화
-// 4. reset버튼 활성화
-// 5. 랜덤으로 벌레와 당근 나오게하기
-// 6. 벌레를 잡으면 개수를 증가시키기
-// 7. 시간이 다되면 게임 끝내기
-// 8. 벌레를 다 잡으면 게임 끝내기
-// 9. 당근을 잡으면 게임 끝내기
-const main = document.querySelector(".jsBugs");
-const body = document.querySelector("body");
-const time = document.querySelector(".jsTime");
-const playBtn = document.querySelector(".jsBtn");
-const replayWrapper = document.querySelector(".jsReplayWrapper");
-const replay = document.querySelector(".jsReplay");
-const replayBtn = document.querySelector(".jsReplayBtn");
-const catching = document.querySelector(".jsCatch");
-const replayText = document.querySelector(".jsReplayText");
-const bugDiv = main.querySelector(".bugDiv");
-const carrotDiv = main.querySelector(".carrotDiv");
-const bgMusic = document.createElement("audio");
+"use strict";
+const gameFrame = document.querySelector(".game_frame");
+const gameField = gameFrame.getBoundingClientRect();
+const playBtn = document.querySelector(".play_btn");
+const playIcon = document.querySelector(".fa-play");
+const replayContainer = document.querySelector(".replay_container");
+const replayBtn = document.querySelector(".replay_btn");
+const replayText = document.querySelector(".user_text");
+const playTime = document.querySelector(".play_time");
+const playCatching = document.querySelector(".play_catching");
+const bugAudio = new Audio("sound/bug_pull.mp3");
+const carrotAudio = new Audio("sound/carrot_pull.mp3");
+const gameWinAudio = new Audio("sound/game_win.mp3");
+const bgAudio = new Audio("sound/bg.mp3");
+const alertAudio = new Audio("sound/alert.wav");
 
-const btnClass = playBtn.classList;
-let catchingCarrot = 0;
-let minusTime = 10;
+let started = false;
+let timer = undefined;
+let count = 0;
 
-const playMusic = function () {
-  bgMusic.src = "sound/bg.mp3";
-  body.appendChild(bgMusic);
-  bgMusic.play();
-};
-
-const pauseMusic = function () {
-  bgMusic.src = "sound/bg.mp3";
-  body.appendChild(bgMusic);
-  bgMusic.pause();
-};
-
-const handleStatus = function () {
-  if (catchingCarrot === 0) {
-    minusTime = 10;
-    catching.innerText = 0;
-    replayText.innerText = "YOU LOST😢";
-    playMusic();
-    removeGame();
-    generateGame();
-    delBugs();
-    delCarrot();
-    replayWrapper.classList.add("hidden");
-    btnClass.remove("hidden");
-    time.innerText = `00:${minusTime}`;
-  }
-  const decreseTime = setInterval(() => {
-    if (catching.innerText === "7") {
-      clearInterval(decreseTime);
-      pauseMusic();
-      replayText.innerText = "YOU WIN!!";
-      replayWrapper.classList.remove("hidden");
-    }
-    if (catchingCarrot === 1) {
-      clearInterval(decreseTime);
-      pauseMusic();
-      replayWrapper.classList.remove("hidden");
-      catchingCarrot = 0;
-    }
-
-    if (minusTime > 0) {
-      minusTime = minusTime - 1;
-      time.innerText = `00:0${minusTime}`;
-    } else if (minusTime === 0) {
-      playBtn.classList.add("btn_hidden");
-      replayWrapper.classList.remove("hidden");
-      clearInterval(decreseTime);
-      pauseMusic();
-    }
-    if (btnClass[2] === "fa-stop") {
-      playBtn.addEventListener("click", function () {
-        pauseMusic();
-        btnClass.add("hidden");
-        replayWrapper.classList.remove("hidden");
-        clearInterval(decreseTime);
-      });
+function remainTime(time) {
+  givenTime(time);
+  timer = setInterval(() => {
+    if (time > 0) {
+      time--;
+      givenTime(time);
+    } else {
+      clearInterval(timer);
+      stopGame();
+      replayText.innerText = "YOU LOST😢";
     }
   }, 1000);
-};
-
-const handlePlay = function () {
-  if (btnClass[1] === "fa-play") {
-    handleStatus();
-  }
-  btnClass.remove("fa-play");
-  btnClass.add("fa-stop");
-};
-
-if (playBtn) {
-  playBtn.addEventListener("click", handlePlay);
 }
 
-if (replayBtn) {
-  replayBtn.addEventListener("click", handleStatus);
+function givenTime(time) {
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+  playTime.innerText = `${minutes} : ${seconds}`;
 }
 
-const generateGame = function () {
-  for (let i = 8; i <= 17; i++) {
-    generateCarrot(i);
+function playGame() {
+  if (!started) {
+    startGame();
+  } else {
+    stopGame();
   }
-  for (let i = 1; i <= 7; i++) {
-    generateBugs(i);
+}
+
+function startGame() {
+  bgAudio.currentTime = 0;
+  bgAudio.play();
+  gameFrame.innerHTML = "";
+  count = 10;
+  createObject("carrot", count, "img/carrot.png");
+  createObject("bug", count, "img/bug.png");
+  playCatching.innerText = count;
+  hidePlayBtn();
+  remainTime(10);
+  started = !started;
+}
+
+function stopGame() {
+  bgAudio.pause();
+  playBtn.classList.add("hide");
+  replayContainer.classList.remove("hide");
+  replayText.innerText = "Replay?";
+  clearInterval(timer);
+  started = !started;
+  if (count === 0) {
+    replayText.innerText = "YOU WIN👏";
+    gameWinAudio.play();
+  } else {
+    alertAudio.play();
   }
-};
+}
 
-const removeGame = function () {
-  while (bugDiv.hasChildNodes()) {
-    bugDiv.removeChild(bugDiv.firstChild);
+function replayGame() {
+  bgAudio.pause();
+  startGame();
+  replayContainer.classList.add("hide");
+  playBtn.classList.remove("hide");
+}
+
+function hidePlayBtn() {
+  playIcon.classList.remove("fa-play");
+  playIcon.classList.add("fa-stop");
+}
+
+function createObject(className, count, img) {
+  const x = gameField.width;
+  const y = gameField.height;
+  for (let i = 0; i < count; i++) {
+    const object = document.createElement("img");
+    object.src = img;
+    object.classList.add(className);
+    object.style.position = "absolute";
+    const x2 = randomNumber(x);
+    const y2 = randomNumber(y);
+    object.style.left = `${x2}px`;
+    object.style.top = `${y2}px`;
+    gameFrame.appendChild(object);
   }
-  while (carrotDiv.hasChildNodes()) {
-    carrotDiv.removeChild(carrotDiv.firstChild);
+}
+
+function randomNumber(XOrY) {
+  return Math.ceil(Math.random() * (XOrY - 80));
+}
+
+function removeObject(event) {
+  if (!started) {
+    return;
+  } else {
+    const target = event.target;
+    if (target.matches(".bug")) {
+      target.remove();
+      bugAudio.currentTime = 0;
+      bugAudio.play();
+      count--;
+      playCatching.innerText--;
+      if (count === 0) {
+        stopGame();
+      }
+    } else if (target.matches(".carrot")) {
+      target.remove();
+      carrotAudio.play();
+      stopGame();
+      replayText.innerText = "YOU LOST😢";
+    }
   }
-};
+}
 
-const generateBugs = function (id) {
-  const jsLeft = Math.floor(Math.random() * (main.clientWidth - 70));
-  const jsTop = Math.floor(Math.random() * (main.clientHeight - 80));
-  const bugImg = document.createElement("img");
-  bugImg.classList.add("bugImg");
-  bugImg.src = "img/bug.png";
-  bugImg.alt = "bug";
-  bugImg.id = id;
-  bugImg.style.left = `${jsLeft}px`;
-  bugImg.style.top = `${jsTop}px`;
-  bugDiv.appendChild(bugImg);
-};
-
-const generateCarrot = function (id) {
-  const jsLeft = Math.floor(Math.random() * (main.clientWidth - 70));
-  const jsTop = Math.floor(Math.random() * (main.clientHeight - 80));
-  const carrotImg = document.createElement("img");
-  carrotImg.classList.add("carrotImg");
-  carrotImg.src = "img/carrot.png";
-  carrotImg.alt = "carrpt";
-  carrotImg.id = id;
-  carrotImg.style.left = `${jsLeft}px`;
-  carrotImg.style.top = `${jsTop}px`;
-  carrotDiv.appendChild(carrotImg);
-};
-
-const delBugs = function () {
-  const bugs = document.querySelectorAll(".bugImg");
-  const bugsAudio = document.createElement("audio");
-  bugsAudio.src = "sound/bug_pull.mp3";
-  bugDiv.appendChild(bugsAudio);
-  bugs.forEach(function (ele) {
-    ele.addEventListener("click", (a) => {
-      a.target.remove();
-      catching.innerText++;
-      bugsAudio.play();
-    });
-  });
-};
-
-const delCarrot = function () {
-  const carrots = document.querySelectorAll(".carrotImg");
-  carrots.forEach(function (ele) {
-    ele.addEventListener("click", (a) => {
-      a.target.remove();
-      catchingCarrot++;
-    });
-  });
-};
+playBtn.addEventListener("click", playGame);
+replayBtn.addEventListener("click", replayGame);
+gameFrame.addEventListener("click", removeObject);
