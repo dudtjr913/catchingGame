@@ -1,11 +1,10 @@
 "use strict";
+import PopUpContainer from "./container.js";
+
 const gameFrame = document.querySelector(".game_frame");
 const gameField = gameFrame.getBoundingClientRect();
 const playBtn = document.querySelector(".play_btn");
 const playIcon = document.querySelector(".fa-play");
-const replayContainer = document.querySelector(".replay_container");
-const replayBtn = document.querySelector(".replay_btn");
-const replayText = document.querySelector(".user_text");
 const playTime = document.querySelector(".play_time");
 const playCatching = document.querySelector(".play_catching");
 const bugAudio = new Audio("sound/bug_pull.mp3");
@@ -18,6 +17,9 @@ let started = false;
 let timer = undefined;
 let count = 0;
 
+const popUp = new PopUpContainer();
+popUp.setClickListener(replayGame);
+
 function remainTime(time) {
   givenTime(time);
   timer = setInterval(() => {
@@ -27,7 +29,6 @@ function remainTime(time) {
     } else {
       clearInterval(timer);
       stopGame();
-      replayText.innerText = "YOU LOST😢";
     }
   }, 1000);
 }
@@ -62,12 +63,10 @@ function startGame() {
 function stopGame() {
   bgAudio.pause();
   playBtn.classList.add("hide");
-  replayContainer.classList.remove("hide");
-  replayText.innerText = "Replay?";
   clearInterval(timer);
+  popUp.showWithText("REPLAY?");
   started = !started;
   if (count === 0) {
-    replayText.innerText = "YOU WIN👏";
     gameWinAudio.play();
   } else {
     alertAudio.play();
@@ -77,7 +76,6 @@ function stopGame() {
 function replayGame() {
   bgAudio.pause();
   startGame();
-  replayContainer.classList.add("hide");
   playBtn.classList.remove("hide");
 }
 
@@ -119,16 +117,16 @@ function removeObject(event) {
       playCatching.innerText--;
       if (count === 0) {
         stopGame();
+        popUp.showWithText("YOU WIN👏");
       }
     } else if (target.matches(".carrot")) {
       target.remove();
       carrotAudio.play();
       stopGame();
-      replayText.innerText = "YOU LOST😢";
+      popUp.showWithText("YOU LOST😢");
     }
   }
 }
 
 playBtn.addEventListener("click", playGame);
-replayBtn.addEventListener("click", replayGame);
 gameFrame.addEventListener("click", removeObject);
