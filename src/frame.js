@@ -24,13 +24,13 @@ export default class Field {
   removeTarget = (event) => {
     const target = event.target;
     if (target.matches(".bug")) {
+      this.onClick && this.onClick("bug");
       target.remove();
       sound.bugSound();
-      this.onClick && this.onClick("bug");
     } else if (target.matches(".carrot")) {
+      this.onClick && this.onClick("carrot");
       target.remove();
       sound.carrotSound();
-      this.onClick && this.onClick("carrot");
     }
   };
 

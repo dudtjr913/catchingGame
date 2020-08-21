@@ -2,99 +2,47 @@
 import PopUpContainer from "./container.js";
 import Field from "./frame.js";
 import * as sound from "./sound.js";
-
-const playBtn = document.querySelector(".play_btn");
-const playIcon = document.querySelector(".fa-play");
-const playTime = document.querySelector(".play_time");
-const playCatching = document.querySelector(".play_catching");
-
-let started = false;
-let timer = undefined;
-let count = 0;
+import Game from "./game.js";
 
 const popUp = new PopUpContainer();
+const gameField = new Field(10, 10);
+const gamePlay = new Game();
+
 popUp.setClickListener(replayGame);
 
-const gameField = new Field(10, 10);
+function replayGame() {
+  sound.bgStopSound();
+  gamePlay.playGame();
+  gamePlay.playBtn.classList.remove("hide");
+}
+
 gameField.setClickListener(onClick);
 
 function onClick(item) {
-  if (!started) {
+  if (!gamePlay.started) {
     return;
   } else {
     if (item === "bug") {
-      count--;
-      playCatching.innerText--;
-      if (count === 0) {
-        stopGame();
+      gamePlay.count--;
+      gamePlay.playCatching.innerText--;
+      if (gamePlay.count === 0) {
+        gamePlay.stopGame();
         popUp.showWithText("YOU WIN👏");
       }
     } else if (item === "carrot") {
-      stopGame();
+      gamePlay.stopGame();
       popUp.showWithText("YOU LOST😢");
     }
   }
 }
-
-function remainTime(time) {
-  givenTime(time);
-  timer = setInterval(() => {
-    if (time > 0) {
-      time--;
-      givenTime(time);
-    } else {
-      clearInterval(timer);
-      stopGame();
-    }
-  }, 1000);
-}
-
-function givenTime(time) {
-  const minutes = Math.floor(time / 60);
-  const seconds = time % 60;
-  playTime.innerText = `${minutes} : ${seconds}`;
-}
-
-function playGame() {
-  if (!started) {
-    startGame();
-  } else {
-    stopGame();
-  }
-}
+gamePlay.setOnClickListener(startGame);
 
 function startGame() {
-  sound.bgSound();
-  gameField.init();
-  count = gameField.bugCount;
-  playCatching.innerText = count;
-  hidePlayBtn();
-  remainTime(10);
-  started = !started;
-}
-
-function stopGame() {
-  sound.bgStopSound();
-  playBtn.classList.add("hide");
-  clearInterval(timer);
-  popUp.showWithText("REPLAY?");
-  started = !started;
-  if (count === 0) {
-    sound.gameWinSound();
+  if (!gamePlay.started) {
+    gameField.init();
+    gamePlay.count = gameField.bugCount;
+    gamePlay.playCatching.innerText = gamePlay.count;
   } else {
-    sound.alertSound();
+    popUp.showWithText("REPLAY?");
   }
 }
-
-function replayGame() {
-  sound.bgStopSound();
-  startGame();
-  playBtn.classList.remove("hide");
-}
-
-function hidePlayBtn() {
-  playIcon.classList.remove("fa-play");
-  playIcon.classList.add("fa-stop");
-}
-
-playBtn.addEventListener("click", playGame);
