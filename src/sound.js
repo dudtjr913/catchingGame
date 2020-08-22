@@ -30,6 +30,10 @@ export function bgStopSound() {
   stopSound(bgAudio);
 }
 
+export function winStopSound() {
+  stopSound(gameWinAudio);
+}
+
 function playSound(sound) {
   sound.currentTime = 0;
   sound.play();
