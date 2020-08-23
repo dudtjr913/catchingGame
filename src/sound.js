@@ -36,7 +36,10 @@ export function winStopSound() {
 
 function playSound(sound) {
   sound.currentTime = 0;
-  sound.play();
+  let soundPromise = sound.play();
+  if (soundPromise !== undefined) {
+    soundPromise.then((_) => sound.pause());
+  }
 }
 function stopSound(sound) {
   sound.pause();
